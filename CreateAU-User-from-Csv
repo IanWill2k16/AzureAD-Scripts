@@ -11,10 +11,7 @@ $csv = Import-Csv -Path "C:\New-Users\NewUsers.csv"
 $group = Get-MsolGroup -SearchString 'Test Group'
 $adminUnitObj = Get-AzureADMSAdministrativeUnit -Filter "displayname eq 'Test Administrative Unit'"
 
-$csv | foreach {New-MsolUser -UserPrincipalName $_.UserPrincipalName 
-  -FirstName $_.FirstName -LastName $_.LastName -DisplayName $_.DisplayName 
-  -Department $_.Department -UsageLocation US -Office TestOffice -State IL -Title $_.Title} |
-  Export-Csv -Path "C:\New-Users\Midwest\NewMidwestOutput.csv"
+$csv | foreach {New-MsolUser -UserPrincipalName $_.UserPrincipalName -FirstName $_.FirstName -LastName $_.LastName -DisplayName $_.DisplayName -Department $_.Department -UsageLocation US -Office TestOffice -State IL -Title $_.Title} | Export-Csv -Path "C:\New-Users\Midwest\NewMidwestOutput.csv"
 
 Start-Sleep -s 30
 
