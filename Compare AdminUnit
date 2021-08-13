@@ -1,0 +1,9 @@
+$adminUnitObj = Get-AzureADMSAdministrativeUnit -Filter "displayname eq 'TestAU'"
+$ILmem = Get-AzureADUser -All $true | Where-Object {$_.UserPrincipalName -like "*@testdomain.com"} | Select-Object ObjectId
+$AUmem = Get-AzureADMSAdministrativeUnitMember -Id $adminUnitObj.Id -All $true | Select-Object Id
+$diff = $ILmem.ObjectId | ?{$AUmem.Id -notcontains $_}
+$diffobj = $diff | Select-Object @{Name='ObjectId';Expression={$_}}
+
+$list = foreach($obj in $diffobj) { Get-AzureADUser -ObjectId $obj.ObjectId }
+
+$list | Select-Object ObjectId,DisplayName,UserPrincipalName
