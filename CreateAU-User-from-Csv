@@ -1,0 +1,28 @@
+#Connects to MSOnline and AzureAD services
+
+Connect-MsolService
+Connect-AzureAD
+
+
+
+#Creates users specified in the csv file
+
+$csv = Import-Csv -Path "C:\New-Users\NewUsers.csv"
+$group = Get-MsolGroup -SearchString 'Test Group'
+$adminUnitObj = Get-AzureADMSAdministrativeUnit -Filter "displayname eq 'Test Administrative Unit'"
+
+$csv | foreach {New-MsolUser -UserPrincipalName $_.UserPrincipalName 
+  -FirstName $_.FirstName -LastName $_.LastName -DisplayName $_.DisplayName 
+  -Department $_.Department -UsageLocation US -Office TestOffice -State IL -Title $_.Title} |
+  Export-Csv -Path "C:\New-Users\Midwest\NewMidwestOutput.csv"
+
+Start-Sleep -s 30
+
+#Adds users from csv to the specified group
+$csv | foreach {Add-MsolGroupMember -GroupObjectId $group.ObjectId -GroupMemberType User -GroupMemberObjectId (Get-MsolUser -UserPrincipalName $_.UserPrincipalName ).ObjectId }
+#Adds users from csv to the specified AU
+$csv | foreach { Add-AzureADMSAdministrativeUnitMember -Id $adminUnitObj.Id -RefObjectId (Get-MsolUser -UserPrincipalName $_.UserPrincipalName ).ObjectId }
+#Adds manager to the users
+$csv | foreach { Set-AzureADUserManager -ObjectId (Get-MsolUser -UserPrincipalName $_.UserPrincipalName ).ObjectId -RefObjectId (Get-MsolUser -UserPrincipalName $_.Manager ).ObjectId }
+
+Start-Sleep -s 30
